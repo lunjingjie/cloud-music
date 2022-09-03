@@ -18,7 +18,7 @@ const noWrap = () => {
   `
 }
 
-export default {
+const style = {
   'theme-color': '#d44439',
   'theme-color-shadow': 'rgba(212, 68, 57, .5)',
   'font-color-light': '#f1f1f1',
@@ -36,3 +36,5 @@ export default {
   extendClick,
   noWrap
 }
+
+export default style;
