@@ -1,19 +1,19 @@
-import styled from'styled-components';
+import styled from "styled-components";
 import style from '../../assets/global-style';
 
 export const SliderContainer = styled.div`
   position: relative;
-  box-sizing: border-box;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
+  background-color: white;
   margin: auto;
-  background: white;
   .before {
     position: absolute;
     top: 0;
-    height: 60%;
     width: 100%;
-    background: ${style ["theme-color"]};
+    height: 60%;
+    background-color: ${style['theme-color']};
   }
   .slider-container {
     position: relative;
@@ -29,7 +29,7 @@ export const SliderContainer = styled.div`
       height: 100%;
     }
     .swiper-pagination-bullet-active {
-      background: ${style ["theme-color"]};
+      background: ${style["theme-color"]};
     }
   }
 `

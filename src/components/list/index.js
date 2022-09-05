@@ -1,8 +1,12 @@
 import React from 'react';
+import { 
+  ListWrapper,
+  ListItem,
+  List
+} from './style';
 import { getCount } from '../../api/utils';
-import { ListWrapper, List, ListItem } from '../../components/list/style';
 
-function RecommendList(props) {
+function RecommendList (props) {
   return (
     <ListWrapper>
       <h1 className="title"> 推荐歌单 </h1>
@@ -17,7 +21,7 @@ function RecommendList(props) {
                     <img src={item.picUrl + "?param=300x300"} width="100%" height="100%" alt="music"/>
                   <div className="play_count">
                     <i className="iconfont play">&#xe885;</i>
-                    <span className="count">{getCount (item.playCount)}</span>
+                    <span className="count">{getCount(item.playCount)}</span>
                   </div>
                 </div>
                 <div className="desc">{item.name}</div>
@@ -28,6 +32,6 @@ function RecommendList(props) {
       </List>
     </ListWrapper>
   );
-}
-
-export default React.memo(RecommendList);
+  }
+ 
+export default React.memo (RecommendList);
