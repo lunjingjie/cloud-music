@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Slider from '../../components/slider';
 import RecommendList from '../../components/list';
 import Scroll from '../../baseUI/scroll';
 import style from '../../assets/global-style';
 import styled from 'styled-components';
+import { actionCreators } from './store';
+import { connect } from 'react-redux';
 
 export const Content = styled.div`
   position: fixed;
@@ -18,32 +20,48 @@ export const Content = styled.div`
   }
 `
 
-function Recommend() {
+function Recommend(props) {
+  const { bannerList, recommendList } = props;
+  const { getBannerDataDispatch, getRecommendListDataDispatch } = props;
 
-  const bannerList = [1,2,3,4].map (item => {
-    return { imageUrl: "http://p1.music.126.net/ZYLJ2oZn74yUz5x8NBGkVA==/109951164331219056.jpg", id: item }
-  });
+  useEffect(() => {
+    getBannerDataDispatch();
+    getRecommendListDataDispatch();
+  }, []);
 
-  const recommendList = [1,2,3,4,5,6,7,8,9,10].map (item => {
-    return {
-      id: 1,
-      picUrl: "https://p1.music.126.net/fhmefjUfMD-8qtj3JKeHbA==/18999560928537533.jpg",
-      playCount: 17171122,
-      name: "朴树、许巍、李健、郑钧、老狼、赵雷"
-    }
-  });
+  const bannerListJs = bannerList ? bannerList.toJS() : [];
+  const recommendListJs = recommendList ? recommendList.toJS() : []
 
   return (
     <Content>
       <Scroll className='list'>
         <div>
           <div className='before'></div>
-          <Slider bannerList={bannerList}></Slider>
-          <RecommendList recommendList={recommendList}></RecommendList>
+          <Slider bannerList={bannerListJs}></Slider>
+          <RecommendList recommendList={recommendListJs}></RecommendList>
         </div>
       </Scroll>
     </Content>
   );
 }
 
-export default React.memo(Recommend);
+// 映射redux全局的state到props上
+const mapStateToProps = (state) => ({
+  // recommend为全局注册的reducer字段，bannerList为对应的reducer的state字段
+  bannerList: state.getIn(['recommend', 'bannerList']),
+  recommendList: state.getIn(['recommend', 'recommendList']),
+})
+
+// 映射dispatch到props上
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getBannerDataDispatch() {
+      dispatch(actionCreators.getBannerList());
+    },
+    getRecommendListDataDispatch() {
+      dispatch(actionCreators.getRecommendList());
+    }
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(React.memo(Recommend));

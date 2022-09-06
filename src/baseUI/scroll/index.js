@@ -12,7 +12,6 @@ const Scroll = forwardRef((props, ref) => {
   const [bScroll, setBScroll] = useState();
   // current指向初始化bs实例需要的DOM元素
   const scrollContainerRef = useRef();
-  console.log(scrollContainerRef);
 
   const { direction, click, refresh, pullUpLoading, pullDownLoading, bounceTop, bounceBottom } = props;
   const { pullUp, pullDown, onScroll } = props;
@@ -24,7 +23,7 @@ const Scroll = forwardRef((props, ref) => {
       scrollX: direction === 'horizental',
       scrollY: direction === 'vertical',
       probeType: 3,
-      click,
+      click: click,
       bounce:{
         top: bounceTop,
         bottom: bounceBottom,
@@ -112,7 +111,7 @@ const Scroll = forwardRef((props, ref) => {
 
 Scroll.propTypes = {
   direction: PropTypes.oneOf (['vertical', 'horizental']),// 滚动的方向
-  click: true,// 是否支持点击
+  click: PropTypes.bool,// 是否支持点击
   refresh: PropTypes.bool,// 是否刷新
   onScroll: PropTypes.func,// 滑动触发的回调函数
   pullUp: PropTypes.func,// 上拉加载逻辑
@@ -125,7 +124,6 @@ Scroll.propTypes = {
 
 Scroll.defaultProps = {
   direction: "vertical",
-  click: true,
   refresh: true,
   onScroll:null,
   pullUpLoading: false,
