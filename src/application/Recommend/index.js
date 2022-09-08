@@ -6,6 +6,8 @@ import style from '../../assets/global-style';
 import styled from 'styled-components';
 import { actionCreators } from './store';
 import { connect } from 'react-redux';
+import { forceCheck } from 'react-lazyload';
+import Loading from '../../baseUI/loading';
 
 export const Content = styled.div`
   position: fixed;
@@ -21,12 +23,16 @@ export const Content = styled.div`
 `
 
 function Recommend(props) {
-  const { bannerList, recommendList } = props;
+  const { bannerList, recommendList, enterLoading } = props;
   const { getBannerDataDispatch, getRecommendListDataDispatch } = props;
 
   useEffect(() => {
-    getBannerDataDispatch();
-    getRecommendListDataDispatch();
+    if (!bannerList.size) {
+      getBannerDataDispatch();
+    }
+    if (!recommendList.size) {
+      getRecommendListDataDispatch();
+    }
   }, []);
 
   const bannerListJs = bannerList ? bannerList.toJS() : [];
@@ -34,13 +40,14 @@ function Recommend(props) {
 
   return (
     <Content>
-      <Scroll className='list'>
+      <Scroll className='list' onScroll={forceCheck}>
         <div>
           <div className='before'></div>
           <Slider bannerList={bannerListJs}></Slider>
           <RecommendList recommendList={recommendListJs}></RecommendList>
         </div>
       </Scroll>
+      { enterLoading ? <Loading></Loading> : null }
     </Content>
   );
 }
@@ -50,6 +57,7 @@ const mapStateToProps = (state) => ({
   // recommend为全局注册的reducer字段，bannerList为对应的reducer的state字段
   bannerList: state.getIn(['recommend', 'bannerList']),
   recommendList: state.getIn(['recommend', 'recommendList']),
+  enterLoading: state.getIn(['recommend', 'enterLoading']),
 })
 
 // 映射dispatch到props上
