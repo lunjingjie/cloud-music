@@ -1,37 +1,49 @@
-import React, { useState } from 'react';
+import { PullDownRefresh } from 'better-scroll';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import { categoryTypes, alphaTypes } from '../../api/config';
 import Horizen from '../../baseUI/horizen-item';
 import Scroll from '../../baseUI/scroll';
+import { actionCreators } from './store';
+import { changePageCount, changePullDownLoading, changePullUpLoading } from './store/actionCreator';
 import { NavContainer, List, ListItem, ListContainer } from './style';
 
-function Singers() {
+function Singers(props) {
 
   let [category, setCategory] = useState('');
   let [alpha, setAlpha] = useState('');
+  const { singerList, getHotSingerListDispatch, pageCount, pullUpLoading, pullDownLoading } = props;
+  const { updateDispatch, pullUpRefreshDispatch, pullDownRefreshDispatch } = props;
+
+  const singerListJs = singerList ? singerList.toJS() : [];
+
+  useEffect(() => {
+    getHotSingerListDispatch();
+  }, []);
 
   let handleUpdateCategory = (val) => {
     setCategory(val);
+    updateDispatch(val, alpha);
   }
 
   let handleUpdateAlpha = (val) => {
     setAlpha(val);
+    updateDispatch(category, val);
   }
 
+  const handlePullUp = () => {
+    pullUpRefreshDispatch(category, alpha, category === '' && alpha === '', pageCount);
+  }
 
-  // mock数据
-  const singerList = [1, 2,3, 4,5,6,7,8,9,10,11,12].map (item => {
-    return {
-      picUrl: "https://p2.music.126.net/uTwOm8AEFFX_BYHvfvFcmQ==/109951164232057952.jpg",
-      name: "隔壁老樊",
-      accountId: 277313426,
-    }
-  });
+  const handlePullDown = () => {
+    pullDownRefreshDispatch(category, alpha);
+  }
 
   const renderSingerList = function() {
     return (
       <List>
         {
-          singerList.map((item, index) => {
+          singerListJs.map((item, index) => {
             return (
               <ListItem key={item.accountId+""+index}>
                 <div className="img_wrapper">
@@ -61,7 +73,12 @@ function Singers() {
         ></Horizen>
       </NavContainer>
       <ListContainer>
-        <Scroll>
+        <Scroll
+          pullUpLoading={ pullUpLoading }
+          pullDownLoading={ pullDownLoading }
+          pullUp={ handlePullUp }
+          pullDown= { handlePullDown }
+        >
           { renderSingerList() }
         </Scroll>
       </ListContainer>
@@ -69,4 +86,43 @@ function Singers() {
   );
 }
 
-export default React.memo(Singers);
+const mapStateToProps = (state) => ({
+  singerList: state.getIn(['singers', 'singerList']),
+  enterLoading: state.getIn(['singers', 'enterLoading']),
+  pullUpLoading: state.getIn(['singers', 'pullUpLoading']),
+  pullDownLoading: state.getIn(['singers', 'pullDownLoading']),
+  pageCount: state.getIn(['singers', 'pageCount']),
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  getHotSingerListDispatch() {
+    dispatch(actionCreators.getHotSingerList());
+  },
+  updateDispatch(category, alpha) {
+    dispatch(actionCreators.changePageCount(0));
+    dispatch(actionCreators.changeEnterLoading(true));
+    dispatch(actionCreators.getSingerList(category, alpha));
+  },
+  // 底部上拉，加载更多
+  pullUpRefreshDispatch(category, alpha, hot, count) {
+    dispatch(changePullUpLoading(true));
+    dispatch(changePageCount(count + 1));
+    if (hot) {
+      dispatch(actionCreators.refreshMoreHotSingerList());
+    } else {
+      dispatch(actionCreators.refreshMoreSingerList(category, alpha));
+    }
+  },
+  // 顶部下拉刷新，重新加载
+  pullDownRefreshDispatch(category, alpha) {
+    dispatch(changePullDownLoading(true));
+    dispatch(changePageCount(0));
+    if (category === '' && alpha === '') {
+      dispatch(actionCreators.getHotSingerList());
+    } else {
+      dispatch(actionCreators.getSingerList(category, alpha));
+    }
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(React.memo(Singers));

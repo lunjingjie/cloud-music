@@ -1,7 +1,9 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import PropTypes from 'prop-types';
 import BScroll from 'better-scroll';
-import { ScrollContainer } from "./style";
+import { ScrollContainer, PullUpLoading, PullDownLoading } from "./style";
+import Loading from "../loading";
+import LoadingV2 from "../loading-v2";
 
 /**
  * scroll 组件在业务中会被经常取到原生 DOM 对象，而函数式组件天生不具备被上层组件直接调用 ref 的条件，
@@ -102,28 +104,35 @@ const Scroll = forwardRef((props, ref) => {
     }
   }));
 
+  const pullUpDisplayStyle = pullUpLoading ? { display: '' } : { display: 'none'};
+  const pullDownDisplayStyle = pullDownLoading ? { display: '' } : { display: 'none'};
+
   return (
     <ScrollContainer ref={scrollContainerRef}>
       {props.children}
+      {/* 底部加载更多动画 */}
+      <PullUpLoading style={ pullUpDisplayStyle }><Loading></Loading></PullUpLoading>
+      {/* 顶部重新加载数据动画 */}
+      <PullDownLoading style={ pullDownDisplayStyle }><LoadingV2></LoadingV2></PullDownLoading>
     </ScrollContainer>
   );
 })
 
 Scroll.propTypes = {
-  direction: PropTypes.oneOf (['vertical', 'horizental']),// 滚动的方向
-  click: PropTypes.bool,// 是否支持点击
-  refresh: PropTypes.bool,// 是否刷新
-  onScroll: PropTypes.func,// 滑动触发的回调函数
-  pullUp: PropTypes.func,// 上拉加载逻辑
-  pullDown: PropTypes.func,// 下拉加载逻辑
-  pullUpLoading: PropTypes.bool,// 是否显示上拉 loading 动画
-  pullDownLoading: PropTypes.bool,// 是否显示下拉 loading 动画
-  bounceTop: PropTypes.bool,// 是否支持向上吸顶
-  bounceBottom: PropTypes.bool// 是否支持向下吸底
+  direction: PropTypes.oneOf(['vertical', 'horizental']),
+  refresh: PropTypes.bool,
+  onScroll: PropTypes.func,
+  pullUp: PropTypes.func,
+  pullDown: PropTypes.func,
+  pullUpLoading: PropTypes.bool,
+  pullDownLoading: PropTypes.bool,
+  bounceTop: PropTypes.bool,//是否支持向上吸顶
+  bounceBottom: PropTypes.bool//是否支持向上吸顶
 }
 
 Scroll.defaultProps = {
   direction: "vertical",
+  click: true,
   refresh: true,
   onScroll:null,
   pullUpLoading: false,
