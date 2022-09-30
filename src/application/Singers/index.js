@@ -1,5 +1,6 @@
 import { PullDownRefresh } from 'better-scroll';
 import React, { useEffect, useState } from 'react';
+import LazyLoad, { forceCheck } from 'react-lazyload';
 import { connect } from 'react-redux';
 import { categoryTypes, alphaTypes } from '../../api/config';
 import Horizen from '../../baseUI/horizen-item';
@@ -47,7 +48,9 @@ function Singers(props) {
             return (
               <ListItem key={item.accountId+""+index}>
                 <div className="img_wrapper">
-                  <img src={`${item.picUrl}?param=300x300`} width="100%" height="100%" alt="music"/>
+                  <LazyLoad placeholder={<img width="100%" height="100%" src={require('./singer.png')} alt="music"/>}>
+                    <img src={`${item.picUrl}?param=300x300`} width="100%" height="100%" alt="music"/>
+                  </LazyLoad>
                 </div>
                 <span className='name'>{item.name}</span>
               </ListItem>
@@ -74,6 +77,7 @@ function Singers(props) {
       </NavContainer>
       <ListContainer>
         <Scroll
+          onScroll={forceCheck}
           pullUpLoading={ pullUpLoading }
           pullDownLoading={ pullDownLoading }
           pullUp={ handlePullUp }

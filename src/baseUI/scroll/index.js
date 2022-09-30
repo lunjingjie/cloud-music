@@ -1,9 +1,10 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import PropTypes from 'prop-types';
 import BScroll from 'better-scroll';
 import { ScrollContainer, PullUpLoading, PullDownLoading } from "./style";
 import Loading from "../loading";
 import LoadingV2 from "../loading-v2";
+import { debounce } from "../../api/utils";
 
 /**
  * scroll 组件在业务中会被经常取到原生 DOM 对象，而函数式组件天生不具备被上层组件直接调用 ref 的条件，
@@ -17,6 +18,14 @@ const Scroll = forwardRef((props, ref) => {
 
   const { direction, click, refresh, pullUpLoading, pullDownLoading, bounceTop, bounceBottom } = props;
   const { pullUp, pullDown, onScroll } = props;
+
+  let pullUpDebounce = useMemo(() => {
+    return debounce(pullUp, 300);
+  }, [pullUp]);
+
+  let pullDownDebounce = useMemo(() => {
+    return debounce(pullDown, 300);
+  }, [pullDown]);
 
   // 第二个参数为空数组，只渲染一次（render执行后）。return用于组件卸载时调用
   // 创建better-scroll
@@ -62,14 +71,15 @@ const Scroll = forwardRef((props, ref) => {
     if (!bScroll || !pullUp) {
       return;
     }
-    bScroll.on('scrollEnd', () => {
+    const handlePullUp = () => {
       // 判断是否滑动到了底部
       if (bScroll.y <= bScroll.maxScrollY + 100) {
-        pullUp();
+        pullUpDebounce();
       }
-    });
+    };
+    bScroll.on('scrollEnd', handlePullUp);
     return () => {
-      bScroll.off('scrollEnd');
+      bScroll.off('scrollEnd', handlePullUp);
     }
   }, [bScroll, pullUp]);
 
@@ -78,13 +88,14 @@ const Scroll = forwardRef((props, ref) => {
     if (!bScroll || !pullDown) {
       return;
     }
-    bScroll.on('touchEnd', (pos) => {
+    const handlePullDown = (pos) => {
       if (pos.y > 50) {
-        pullDown();
+        pullDownDebounce();
       }
-    });
+    };
+    bScroll.on('touchEnd', handlePullDown);
     return () => {
-      bScroll.off('touchEnd');
+      bScroll.off('touchEnd', handlePullDown);
     }
   }, [bScroll, pullDown]);
 
