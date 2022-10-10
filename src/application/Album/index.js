@@ -14,9 +14,9 @@ const Album = (props) => {
   const [title, setTitle] = useState('歌单');
   const headerEl = useRef();
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     setShowStatus(false);
-  }
+  });
 
   const { enterLoading, currentAlbum } = useSelector((state) => ({
     enterLoading: state.getIn(['album', 'enterLoading']),
@@ -25,7 +25,7 @@ const Album = (props) => {
 
   const dispatch = useDispatch();
   const id = props.match.params.id;
-  
+
   // 初始化加载歌单信息
   useEffect(() => {
     dispatch(changeEnterLoading(true));
