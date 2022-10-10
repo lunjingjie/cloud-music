@@ -7,6 +7,7 @@ import Scroll from '../../baseUI/scroll';
 import style from '../../assets/global-style';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentAlbumById, changeEnterLoading } from './store/actionCreator';
+import Loading from '../../baseUI/loading';
 
 const Album = (props) => {
   const [showStatus, setShowStatus] = useState(true);
@@ -164,6 +165,7 @@ const Album = (props) => {
             </div>
           </Scroll> : null
         }
+        { enterLoading ? <Loading></Loading> : null }
       </Container>
     </CSSTransition>
   );
