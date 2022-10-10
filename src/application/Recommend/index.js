@@ -2,24 +2,18 @@ import React, { useEffect } from 'react';
 import Slider from '../../components/slider';
 import RecommendList from '../../components/list';
 import Scroll from '../../baseUI/scroll';
-import style from '../../assets/global-style';
 import styled from 'styled-components';
 import { actionCreators } from './store';
 import { connect } from 'react-redux';
 import { forceCheck } from 'react-lazyload';
 import Loading from '../../baseUI/loading';
+import { renderRoutes } from 'react-router-config';
 
 export const Content = styled.div`
   position: fixed;
-  top: 94px;
+  top: 90px;
   bottom: 0;
   width: 100%;
-  .before {
-    position: absolute;
-    top: -300px;
-    height: 400px;
-    background: ${style["theme-color"]};
-  }
 `
 
 function Recommend(props) {
@@ -48,6 +42,8 @@ function Recommend(props) {
         </div>
       </Scroll>
       { enterLoading ? <Loading></Loading> : null }
+      {/* 渲染路由 */}
+      { renderRoutes(props.route.routes) }
     </Content>
   );
 }

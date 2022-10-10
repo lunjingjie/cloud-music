@@ -13,13 +13,9 @@ function Rank() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    init();
-  }, []);
-
-  const init = () => {
     dispatch(changeLoading(true));
     dispatch(getRankList());
-  };
+  }, [dispatch]);
 
   let officeList = rankList.filter((item) => item.tracks.length > 0);
   let globalList = rankList.filter((item) => item.tracks.length === 0);
