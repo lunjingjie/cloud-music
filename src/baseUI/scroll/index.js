@@ -62,7 +62,7 @@ const Scroll = forwardRef((props, ref) => {
       onScroll(scroll);
     });
     return () => {
-      bScroll.off(onScroll);
+      bScroll.off('scroll');
     }
   }, [bScroll, onScroll]);
 

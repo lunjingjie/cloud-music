@@ -1,6 +1,6 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { Album } from '../application/Album';
+import Album from '../application/Album';
 import Home from '../application/Home';
 import Rank from '../application/Rank';
 import Recommend from '../application/Recommend';

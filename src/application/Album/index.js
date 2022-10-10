@@ -1,13 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Container, TopInfoWrapper, Menu, SongList, SongItem } from './style';
 import { CSSTransition } from 'react-transition-group';
 import Header from '../../baseUI/header';
-import { getCount, getName } from '../../api/utils';
+import { getCount, getName, isEmptyObject } from '../../api/utils';
 import Scroll from '../../baseUI/scroll';
 import style from '../../assets/global-style';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCurrentAlbumById, changeEnterLoading } from './store/actionCreator';
 
-export const Album = React.memo((props) => {
-
+const Album = (props) => {
   const [showStatus, setShowStatus] = useState(true);
   const [isMarquee, setIsMarquee] = useState(false);
   const [title, setTitle] = useState('歌单');
@@ -17,9 +18,23 @@ export const Album = React.memo((props) => {
     setShowStatus(false);
   }
 
+  const { enterLoading, currentAlbum } = useSelector((state) => ({
+    enterLoading: state.getIn(['album', 'enterLoading']),
+    currentAlbum: isEmptyObject(state.getIn(['album', 'currentAlbum']).toJS()) ? {} : state.getIn(['album', 'currentAlbum']).toJS(),
+  }));
+
+  const dispatch = useDispatch();
+  const id = props.match.params.id;
+  
+  // 初始化加载歌单信息
+  useEffect(() => {
+    dispatch(changeEnterLoading(true));
+    dispatch(getCurrentAlbumById(id));
+  }, [dispatch, id]);
+
   // 顶部跑马灯滑动处理
   const HEADER_HEIGHT = 45;
-  const handleScroll = (pos) => {
+  const handleScroll = useCallback((pos) => {
     let minScrollY = -HEADER_HEIGHT;
     let percent = Math.abs(pos.y / minScrollY);
     let headerDom = headerEl.current;
@@ -36,92 +51,9 @@ export const Album = React.memo((props) => {
       setTitle('歌单');
       setIsMarquee(false);
     }
-  }
-
-  const currentAlbum = {
-    creator: {
-      avatarUrl: "http://p1.music.126.net/O9zV6jeawR43pfiK2JaVSw==/109951164232128905.jpg",
-      nickname: "浪里推舟"
-    },
-    coverImgUrl: "http://p2.music.126.net/ecpXnH13-0QWpWQmqlR0gw==/109951164354856816.jpg",
-    subscribedCount: 2010711,
-    name: "听完就睡，耳机是天黑以后柔软的梦境",
-    tracks:[
-      {
-        name: "我真的受伤了",
-        ar: [{name: "张学友"}, {name: "周华健"}],
-        al: {
-          name: "学友 热"
-        }
-      },
-      {
-        name: "我真的受伤了",
-        ar: [{name: "张学友"}, {name: "周华健"}],
-        al: {
-          name: "学友 热"
-        }
-      },
-      {
-        name: "我真的受伤了",
-        ar: [{name: "张学友"}, {name: "周华健"}],
-        al: {
-          name: "学友 热"
-        }
-      },
-      {
-        name: "我真的受伤了",
-        ar: [{name: "张学友"}, {name: "周华健"}],
-        al: {
-          name: "学友 热"
-        }
-      },
-      {
-        name: "我真的受伤了",
-        ar: [{name: "张学友"}, {name: "周华健"}],
-        al: {
-          name: "学友 热"
-        }
-      },
-      {
-        name: "我真的受伤了",
-        ar: [{name: "张学友"}, {name: "周华健"}],
-        al: {
-          name: "学友 热"
-        }
-      },
-      {
-        name: "我真的受伤了",
-        ar: [{name: "张学友"}, {name: "周华健"}],
-        al: {
-          name: "学友 热"
-        }
-      },
-      {
-        name: "我真的受伤了",
-        ar: [{name: "张学友"}, {name: "周华健"}],
-        al: {
-          name: "学友 热"
-        }
-      },
-      {
-        name: "我真的受伤了",
-        ar: [{name: "张学友"}, {name: "周华健"}],
-        al: {
-          name: "学友 热"
-        }
-      },
-      {
-        name: "我真的受伤了",
-        ar: [{name: "张学友"}, {name: "周华健"}],
-        al: {
-          name: "学友 热"
-        }
-      },
-    ]
-  }
+  }, [currentAlbum]);
 
   // 顶部封面
-
   const renderTopInfo = () => {
     return (
       <TopInfoWrapper background={currentAlbum.coverImgUrl}>
@@ -218,14 +150,19 @@ export const Album = React.memo((props) => {
     >
       <Container>
         <Header ref={headerEl} isMarquee={isMarquee} title={title} handleClick={handleBack}></Header>
-        <Scroll bounceTop={false} onScroll={handleScroll}>
-          <div>
-            { renderTopInfo() }
-            { renderMenu() }
-            { renderSongList() }
-          </div>
-        </Scroll>
+        {
+          !isEmptyObject(currentAlbum) ?
+          <Scroll bounceTop={false} onScroll={handleScroll}>
+            <div>
+              { renderTopInfo() }
+              { renderMenu() }
+              { renderSongList() }
+            </div>
+          </Scroll> : null
+        }
       </Container>
     </CSSTransition>
   );
-});
+};
+
+export default React.memo(Album);
