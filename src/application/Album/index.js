@@ -14,6 +14,10 @@ const Album = (props) => {
   const [title, setTitle] = useState('歌单');
   const headerEl = useRef();
 
+  /**
+   * 父组件每次渲染生成的函数引用都不同
+   * 使用useCallback缓存函数，传递给子组件，避免子组件重新渲染，失去memo包裹组件的价值
+   */
   const handleBack = useCallback(() => {
     setShowStatus(false);
   });
