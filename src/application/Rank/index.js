@@ -3,8 +3,9 @@ import Scroll from '../../baseUI/scroll';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeLoading, getRankList } from './store/actionCreator';
 import { Container, List, ListItem, SongList } from './style';
+import { renderRoutes } from 'react-router-config';
 
-function Rank() {
+function Rank(props) {
   const { rankList, loading } = useSelector((state) => ({
     rankList: state.getIn(['rank', 'rankList']).toJS(),
     loading: state.getIn(['rank', 'loading']),
@@ -19,6 +20,10 @@ function Rank() {
 
   let officeList = rankList.filter((item) => item.tracks.length > 0);
   let globalList = rankList.filter((item) => item.tracks.length === 0);
+
+  const enterDetail = (detail) => {
+    props.history.push(`/rank/${detail.id}`);
+  }
 
   // 渲染官方榜歌手列表
   const renderSongList = (list) => {
@@ -40,7 +45,7 @@ function Rank() {
         {
           list.map((item) => {
             return (
-              <ListItem key={item.coverImgUrl} tracks={item.tracks}>
+              <ListItem key={item.coverImgUrl} tracks={item.tracks} onClick={() => enterDetail(item)}>
                 <div className='img_wrapper'>
                   <img src={item.coverImgUrl} alt=""/>
                   <div className="decorate"></div>
@@ -67,6 +72,9 @@ function Rank() {
           { renderRankList(globalList, true) }
         </div>
       </Scroll>
+      {
+        renderRoutes(props.route.routes)
+      }
     </Container>
   );
 }

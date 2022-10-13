@@ -2,6 +2,7 @@ import { PullDownRefresh } from 'better-scroll';
 import React, { useEffect, useState } from 'react';
 import LazyLoad, { forceCheck } from 'react-lazyload';
 import { connect } from 'react-redux';
+import { renderRoutes } from 'react-router-config';
 import { categoryTypes, alphaTypes } from '../../api/config';
 import Horizen from '../../baseUI/horizen-item';
 import Scroll from '../../baseUI/scroll';
@@ -40,13 +41,17 @@ function Singers(props) {
     pullDownRefreshDispatch(category, alpha);
   }
 
+  const enterDetail = (id) => {
+    props.history.push(`/singers/${id}`);
+  }
+
   const renderSingerList = function() {
     return (
       <List>
         {
           singerListJs.map((item, index) => {
             return (
-              <ListItem key={item.accountId+""+index}>
+              <ListItem key={item.accountId+""+index} onClick={() => enterDetail(item.id)}>
                 <div className="img_wrapper">
                   <LazyLoad placeholder={<img width="100%" height="100%" src={require('./singer.png')} alt="music"/>}>
                     <img src={`${item.picUrl}?param=300x300`} width="100%" height="100%" alt="music"/>
@@ -86,6 +91,7 @@ function Singers(props) {
           { renderSingerList() }
         </Scroll>
       </ListContainer>
+      { renderRoutes(props.route.routes) }
     </>
   );
 }
