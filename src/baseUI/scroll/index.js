@@ -44,7 +44,7 @@ const Scroll = forwardRef((props, ref) => {
     return () => {
       setBScroll(null);
     }
-  }, []);
+  }, [bounceTop, bounceBottom, click, direction]);
 
   // 每次重新渲染都要刷新实例，防止无法滑动
   useEffect(() => {
@@ -81,7 +81,7 @@ const Scroll = forwardRef((props, ref) => {
     return () => {
       bScroll.off('scrollEnd', handlePullUp);
     }
-  }, [bScroll, pullUp]);
+  }, [bScroll, pullUp, pullUpDebounce]);
 
   // 进行下拉的判断，调用下拉刷新的函数
   useEffect(() => {
@@ -97,7 +97,7 @@ const Scroll = forwardRef((props, ref) => {
     return () => {
       bScroll.off('touchEnd', handlePullDown);
     }
-  }, [bScroll, pullDown]);
+  }, [bScroll, pullDown, pullDownDebounce]);
 
   // 暴露方法给上层组件调用
   useImperativeHandle(ref, () => ({

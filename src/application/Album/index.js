@@ -22,7 +22,7 @@ const Album = (props) => {
    */
   const handleBack = useCallback(() => {
     setShowStatus(false);
-  });
+  }, []);
 
   const { enterLoading, currentAlbum } = useSelector((state) => ({
     enterLoading: state.getIn(['album', 'enterLoading']),
