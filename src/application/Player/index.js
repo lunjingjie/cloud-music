@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import MiniPlayer from "./miniPlayer";
 import NormalPlayer from "./normalPlayer";
@@ -14,7 +14,7 @@ import {
 
 const Player = (props) => {
 
-  const { fullScreen } = props;
+  let { fullScreen } = props;
   const { toggleFullScreenDispatch } = props;
 
   const currentSong = {
