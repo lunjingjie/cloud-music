@@ -36,7 +36,7 @@ export const MiniPlayerContainer = styled.div`
 		width: 40px;
 		height: 40px;
 		padding: 0 10px 0 20px;
-		.imgWrapper {
+		.img_wrapper {
 			width: 100%;
 			height: 100%;
 			img {

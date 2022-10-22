@@ -3,7 +3,7 @@ import { playMode } from "../../../api/config";
 import { SET_CURRENT_INDEX, SET_CURRENT_SONG, SET_FULL_SCREEN, SET_PLAYING_STATE, SET_PLAYLIST, SET_PLAY_MODE, SET_SEQUECE_PLAYLIST, SET_SHOW_PLAYLIST } from "./constants";
 
 const defaultState = fromJS({
-  fullScreen: true, // 是否为全屏
+  fullScreen: false, // 是否为全屏
   playing: false, // 当前歌曲是否播放
   sequencePlayList: [], // 顺序列表
   playList: [],
