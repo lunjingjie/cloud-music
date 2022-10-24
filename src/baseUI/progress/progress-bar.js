@@ -1,5 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { prefixStyle } from '../../api/utils';
 import style from '../../assets/global-style';
 
 const ProgressBarWrapper = styled.div`
@@ -41,10 +42,21 @@ function ProgressBar(props) {
 	const progressBtn = useRef();
 	const [touch, setTouch] = useState({});
 
+  const transform = prefixStyle('transform');
+  
   // 回调函数
-  const { percentChange } = props;
+  const { percentChange, percent } = props;
 
 	const progressBtnWidth = 4;
+
+  useEffect(() => {
+    if (percent >= 0 && percent <= 1 && !touch.initiated) {
+      const barWidth = progressBar.current.clientWidth - progressBtnWidth;
+      const offsetWidth = percent * barWidth;
+      progress.current.style.width = `${offsetWidth}px`;
+      progressBtn.current.style[transform] = `translate3d(${offsetWidth}px, 0, 0)`;
+    }
+  }, [percent]);
 
   const _changePercent = () => {
     const barWidth = progressBar.current.clientWidth - progressBtnWidth;
@@ -87,7 +99,6 @@ function ProgressBar(props) {
   const progressClick = (e) => {
     // 整个div的位置信息
     const rect = progressBar.current.getBoundingClientRect();
-    console.log(rect);
     const offsetWidth = e.pageX - rect.left;
     _offset(offsetWidth);
     _changePercent();

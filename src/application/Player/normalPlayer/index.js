@@ -8,14 +8,14 @@ import {
 	Operators,
 	ProgressWrapper
 } from './style';
-import { getName, prefixStyle } from '../../../api/utils';
+import { formatPlayTime, getName, prefixStyle } from '../../../api/utils';
 import { CSSTransition } from 'react-transition-group';
 import animations from 'create-keyframe-animation';
 import ProgressBar from '../../../baseUI/progress/progress-bar';
 
 const NormalPlayer = (props) => {
-	const { song, fullScreen } = props;
-	const { toggleFullScreen } = props;
+	const { song, fullScreen, playing, currentTime, duration, percent } = props;
+	const { toggleFullScreen, clickPlaying, onProgressChange } = props;
 
 	const normalPlayerRef = useRef();
 	const cdWrapperRef = useRef();
@@ -125,7 +125,7 @@ const NormalPlayer = (props) => {
 					<CDWrapper>
 						<div className="cd">
 							<img
-								className="image play"
+								className={`image play ${playing ? '' : 'pause'}`}
 								src={song.al.picUrl + '?param=400x400'}
 								alt=""
 							/>
@@ -134,11 +134,11 @@ const NormalPlayer = (props) => {
 				</Middle>
 				<Bottom className="bottom">
 					<ProgressWrapper>
-            <span className='time time-l'>0:00</span>
+            <span className='time time-l'>{formatPlayTime(currentTime)}</span>
             <div className='progress-bar-wrapper'>
-              <ProgressBar percent={0.5}></ProgressBar>
+              <ProgressBar percent={percent} percentChange={onProgressChange}></ProgressBar>
             </div>
-            <div className='time time-r'>4:17</div>
+            <div className='time time-r'>{formatPlayTime(duration)}</div>
           </ProgressWrapper>
 					<Operators>
 						<div className="icon i-left">
@@ -147,8 +147,10 @@ const NormalPlayer = (props) => {
 						<div className="icon i-left">
 							<i className="iconfont">&#xe6e1;</i>
 						</div>
-						<div className="icon i-center">
-							<i className="iconfont">&#xe723;</i>
+						<div className="icon i-center" onClick={e => clickPlaying(e, !playing)}>
+							<i className="iconfont"
+                 dangerouslySetInnerHTML={{__html: playing ? '&#xe723;' : '&#xe731;'}}
+              ></i>
 						</div>
 						<div className="icon i-right">
 							<i className="iconfont">&#xe718;</i>
