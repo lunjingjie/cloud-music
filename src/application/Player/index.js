@@ -26,7 +26,7 @@ const Player = (props) => {
 		sequencePlayList: immutableSequencePlayList
 	} = props;
 
-	// const currentSong = immutableCurrentSong.toJS();
+	const currentSong = immutableCurrentSong.toJS();
 	const playList = immutablePlayList.toJS();
 	const sequencePlayList = immutableSequencePlayList.toJS();
 
@@ -53,11 +53,11 @@ const Player = (props) => {
 	// 记录之前的歌曲，比对是否与当前为同一首
 	const [preSong, setPreSong] = useState({});
 
-	const currentSong = {
-		al: { picUrl: 'https://p1.music.126.net/JL_id1CFwNJpzgrXwemh4Q==/109951164172892390.jpg' },
-		name: '木偶人',
-		ar: [{ name: '薛之谦' }]
-	};
+	// const currentSong = {
+	// 	al: { picUrl: 'https://p1.music.126.net/JL_id1CFwNJpzgrXwemh4Q==/109951164172892390.jpg' },
+	// 	name: '木偶人',
+	// 	ar: [{ name: '薛之谦' }]
+	// };
 
 	const clickPlaying = (e, state) => {
 		// 阻止事件传播，因为还有setFullScreen的事件
@@ -109,7 +109,7 @@ const Player = (props) => {
 			return;
 		}
 		let current = playList[currentIndex];
-		changeCurrentDispatch = current;
+		changeCurrentDispatch(current);
 		setPreSong(current);
 		audioRef.current.src = getSongUrl(current.id);
 		setTimeout(() => {

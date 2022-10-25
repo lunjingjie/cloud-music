@@ -1,11 +1,15 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import { getCount, getName } from '../../api/utils';
+import { changeCurrentIndex, changeCurrentSong, changeFullScreen, changePlayingState, changePlayList, changeSequecePlayList } from '../Player/store/actionCreator';
 import { SongItem, SongList } from './style';
 
 // 封装歌单列表
 const SongsList = React.forwardRef((props, refs) => {
 	const { collectCount, showCollect, songs } = props;
 	const totalCount = songs.length;
+
+  const dispatch = useDispatch();
 
 	const collect = (count) => {
 		return (
@@ -16,12 +20,20 @@ const SongsList = React.forwardRef((props, refs) => {
 		);
 	};
 
+  const changeSong = (index) => {
+    console.log(index);
+    console.log(songs);
+    dispatch(changePlayList(songs));
+    dispatch(changeSequecePlayList(songs));
+    dispatch(changeCurrentIndex(index));
+  }
+
 	const songList = (list) => {
 		return (
 			<SongItem>
 				{list.map((item, index) => {
 					return (
-						<li key={index}>
+						<li key={index} onClick={() => changeSong(index)}>
 							<span className="index">{index + 1}</span>
 							<div className="info">
 								<span>{item.name}</span>
