@@ -1,4 +1,3 @@
-import { PullDownRefresh } from 'better-scroll';
 import React, { useEffect, useState } from 'react';
 import LazyLoad, { forceCheck } from 'react-lazyload';
 import { connect } from 'react-redux';
@@ -21,7 +20,7 @@ function Singers(props) {
 
   useEffect(() => {
     getHotSingerListDispatch();
-  }, []);
+  }, [getHotSingerListDispatch]);
 
   let handleUpdateCategory = (val) => {
     setCategory(val);

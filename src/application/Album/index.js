@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Container, TopInfoWrapper, Menu, SongList, SongItem } from './style';
+import { Container, TopInfoWrapper, Menu } from './style';
 import { CSSTransition } from 'react-transition-group';
 import Header from '../../baseUI/header';
 import { getCount, isEmptyObject } from '../../api/utils';

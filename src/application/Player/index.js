@@ -36,13 +36,13 @@ const Player = (props) => {
 		changeCurrentIndexDispatch,
 		changeCurrentDispatch,
 		changePlayListDispatch,
-    changeModeDispatch
+		changeModeDispatch
 	} = props;
 
-  const [modeText, setModeText] = useState();
+	const [modeText, setModeText] = useState();
 
 	const audioRef = useRef();
-  const toastRef = useRef();
+	const toastRef = useRef();
 
 	// 目前播放时间
 	const [currentTime, setCurrentTime] = useState(0);
@@ -52,6 +52,7 @@ const Player = (props) => {
 	let percent = isNaN(currentTime / duration) ? 0 : currentTime / duration;
 	// 记录之前的歌曲，比对是否与当前为同一首
 	const [preSong, setPreSong] = useState({});
+	const [isExistSong, setIsExistSong] = useState(true);
 
 	// const currentSong = {
 	// 	al: { picUrl: 'https://p1.music.126.net/JL_id1CFwNJpzgrXwemh4Q==/109951164172892390.jpg' },
@@ -81,20 +82,26 @@ const Player = (props) => {
 			changePlayListDispatch(sequencePlayList);
 			let index = findIndex(currentSong, sequencePlayList);
 			changeCurrentIndexDispatch(index);
-      setModeText('顺序播放');
+			setModeText('顺序播放');
 		} else if (newMode === 1) {
 			// 单曲循环
 			changePlayListDispatch(sequencePlayList);
-      setModeText('单曲循环');
+			setModeText('单曲循环');
 		} else if (newMode === 2) {
 			// 随机播放
 			let newList = shuffle(sequencePlayList);
 			let index = findIndex(currentSong, newList);
 			changePlayListDispatch(newList);
 			changeCurrentIndexDispatch(index);
-      setModeText('随机播放');
+			setModeText('随机播放');
 		}
 		changeModeDispatch(newMode);
+		toastRef.current.show();
+	};
+
+	const resolveAudioError = () => {
+		togglePlayingDispatch(false);
+		setIsExistSong(false);
     toastRef.current.show();
 	};
 
@@ -139,10 +146,6 @@ const Player = (props) => {
 	useEffect(() => {
 		playing ? audioRef.current.play() : audioRef.current.pause();
 	}, [playing]);
-
-	useEffect(() => {
-		changeCurrentIndexDispatch(0);
-	}, []);
 
 	const updateTime = (e) => {
 		setCurrentTime(e.target.currentTime);
@@ -205,16 +208,21 @@ const Player = (props) => {
 					duration={duration}
 					currentTime={currentTime}
 					percent={percent}
-          mode={mode}
-          changeMode={changeMode}
+					mode={mode}
+					changeMode={changeMode}
 					handlePrev={handlePrev}
 					handleNext={handleNext}
 					clickPlaying={clickPlaying}
 					onProgressChange={onProgressChange}
 				></NormalPlayer>
 			) : null}
-			<audio ref={audioRef} onTimeUpdate={updateTime}></audio>
-      <Toast ref={toastRef} text={modeText}></Toast>
+			<audio
+				ref={audioRef}
+				onTimeUpdate={updateTime}
+				onError={() => resolveAudioError()}
+			></audio>
+			{!isExistSong ? <Toast ref={toastRef} text="该歌曲不存在"></Toast> : null}
+			<Toast ref={toastRef} text={modeText}></Toast>
 		</div>
 	);
 };

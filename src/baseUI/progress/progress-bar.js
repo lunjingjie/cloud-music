@@ -56,7 +56,7 @@ function ProgressBar(props) {
       progress.current.style.width = `${offsetWidth}px`;
       progressBtn.current.style[transform] = `translate3d(${offsetWidth}px, 0, 0)`;
     }
-  }, [percent]);
+  }, [percent, touch.initiated, transform]);
 
   const _changePercent = () => {
     const barWidth = progressBar.current.clientWidth - progressBtnWidth;
