@@ -13,7 +13,7 @@ function Singers(props) {
 
   let [category, setCategory] = useState('');
   let [alpha, setAlpha] = useState('');
-  const { singerList, getHotSingerListDispatch, pageCount, pullUpLoading, pullDownLoading } = props;
+  const { singerList, getHotSingerListDispatch, pageCount, pullUpLoading, pullDownLoading, songsCount } = props;
   const { updateDispatch, pullUpRefreshDispatch, pullDownRefreshDispatch } = props;
 
   const singerListJs = singerList ? singerList.toJS() : [];
@@ -79,7 +79,7 @@ function Singers(props) {
                 handleClick={(val) => handleUpdateAlpha(val)}
         ></Horizen>
       </NavContainer>
-      <ListContainer>
+      <ListContainer play={songsCount}>
         <Scroll
           onScroll={forceCheck}
           pullUpLoading={ pullUpLoading }
@@ -101,6 +101,7 @@ const mapStateToProps = (state) => ({
   pullUpLoading: state.getIn(['singers', 'pullUpLoading']),
   pullDownLoading: state.getIn(['singers', 'pullDownLoading']),
   pageCount: state.getIn(['singers', 'pageCount']),
+  songsCount: state.getIn(['player', 'playList']).size,
 });
 
 const mapDispatchToProps = (dispatch) => ({

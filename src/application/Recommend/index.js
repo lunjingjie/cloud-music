@@ -12,12 +12,12 @@ import { renderRoutes } from 'react-router-config';
 export const Content = styled.div`
   position: fixed;
   top: 90px;
-  bottom: 0;
+  bottom: ${props => props.play ? '60px' : 0};
   width: 100%;
 `
 
 function Recommend(props) {
-  const { bannerList, recommendList, enterLoading } = props;
+  const { bannerList, recommendList, enterLoading, songsCount } = props;
   const { getBannerDataDispatch, getRecommendListDataDispatch } = props;
 
   useEffect(() => {
@@ -33,7 +33,7 @@ function Recommend(props) {
   const recommendListJs = recommendList ? recommendList.toJS() : []
 
   return (
-    <Content>
+    <Content play={songsCount}>
       <Scroll className='list' onScroll={forceCheck}>
         <div>
           <div className='before'></div>
@@ -54,6 +54,7 @@ const mapStateToProps = (state) => ({
   bannerList: state.getIn(['recommend', 'bannerList']),
   recommendList: state.getIn(['recommend', 'recommendList']),
   enterLoading: state.getIn(['recommend', 'enterLoading']),
+  songsCount: state.getIn(['player', 'playList']).size,
 })
 
 // 映射dispatch到props上

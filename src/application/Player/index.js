@@ -52,13 +52,6 @@ const Player = (props) => {
 	let percent = isNaN(currentTime / duration) ? 0 : currentTime / duration;
 	// 记录之前的歌曲，比对是否与当前为同一首
 	const [preSong, setPreSong] = useState({});
-	const [isExistSong, setIsExistSong] = useState(true);
-
-	// const currentSong = {
-	// 	al: { picUrl: 'https://p1.music.126.net/JL_id1CFwNJpzgrXwemh4Q==/109951164172892390.jpg' },
-	// 	name: '木偶人',
-	// 	ar: [{ name: '薛之谦' }]
-	// };
 
 	const clickPlaying = (e, state) => {
 		// 阻止事件传播，因为还有setFullScreen的事件
@@ -99,12 +92,6 @@ const Player = (props) => {
 		toastRef.current.show();
 	};
 
-	const resolveAudioError = () => {
-		togglePlayingDispatch(false);
-		setIsExistSong(false);
-    toastRef.current.show();
-	};
-
 	// 切歌
 	useEffect(() => {
 		if (
@@ -120,11 +107,14 @@ const Player = (props) => {
 		setPreSong(current);
 		audioRef.current.src = getSongUrl(current.id);
 		setTimeout(() => {
-			audioRef.current.play();
+			audioRef.current.play().then(() => {
+        togglePlayingDispatch(true);
+        setCurrentTime(0);
+        setDuration((current.dt / 1000) | 0);
+      }).catch(e => {
+        alert('歌曲不存在');
+      });
 		});
-		togglePlayingDispatch(true);
-		setCurrentTime(0);
-		setDuration((current.dt / 1000) | 0);
 	}, [playList, currentIndex]);
 
 	// useEffect(() => {
@@ -219,9 +209,7 @@ const Player = (props) => {
 			<audio
 				ref={audioRef}
 				onTimeUpdate={updateTime}
-				onError={() => resolveAudioError()}
 			></audio>
-			{!isExistSong ? <Toast ref={toastRef} text="该歌曲不存在"></Toast> : null}
 			<Toast ref={toastRef} text={modeText}></Toast>
 		</div>
 	);
