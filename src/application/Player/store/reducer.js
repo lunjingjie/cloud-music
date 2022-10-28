@@ -13,6 +13,12 @@ const defaultState = fromJS({
   currentSong: {},
 })
 
+const handleDeleteSong = (state, song) => {
+  // 拷贝播放列表
+  // 从数组中删除对应歌曲、修改currentIndex
+  // 把修改后的state与原本的state合并
+}
+
 export default (state = defaultState, action) => {
   switch (action.type) {
     case SET_FULL_SCREEN: return state.set('fullScreen', action.data);

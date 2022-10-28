@@ -14,6 +14,7 @@ import {
 // import { playList } from './mock';
 import { findIndex, getSongUrl, isEmptyObject, shuffle } from '../../api/utils';
 import Toast from '../../baseUI/Toast';
+import PlayList from './playList';
 
 const Player = (props) => {
 	let {
@@ -33,6 +34,7 @@ const Player = (props) => {
 	const {
 		toggleFullScreenDispatch,
 		togglePlayingDispatch,
+    togglePlayListDispatch,
 		changeCurrentIndexDispatch,
 		changeCurrentDispatch,
 		changePlayListDispatch,
@@ -117,22 +119,6 @@ const Player = (props) => {
 		});
 	}, [playList, currentIndex]);
 
-	// useEffect(() => {
-	// 	if (!currentSong) {
-	// 		return;
-	// 	}
-	// 	changeCurrentIndexDispatch(0);
-	// 	let current = playList[0];
-	// 	changeCurrentDispatch(current);
-	// 	audioRef.current.src = getSongUrl(current.id);
-	// 	// setTimeout(() => {
-	// 	//   audioRef.current.play();
-	// 	// });
-	// 	// togglePlayingDispatch(true);
-	// 	setCurrentTime(0);
-	// 	setDuration((current.dt / 1000) | 0);
-	// }, []);
-
 	useEffect(() => {
 		playing ? audioRef.current.play() : audioRef.current.pause();
 	}, [playing]);
@@ -187,6 +173,7 @@ const Player = (props) => {
 					playing={playing}
 					toggleFullScreen={toggleFullScreenDispatch}
 					clickPlaying={clickPlaying}
+          togglePlayList={togglePlayListDispatch}
 				></MiniPlayer>
 			) : null}
 			{!isEmptyObject(currentSong) ? (
@@ -211,6 +198,7 @@ const Player = (props) => {
 				onTimeUpdate={updateTime}
 			></audio>
 			<Toast ref={toastRef} text={modeText}></Toast>
+      <PlayList></PlayList>
 		</div>
 	);
 };
