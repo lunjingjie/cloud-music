@@ -1,10 +1,20 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { CSSTransition } from 'react-transition-group';
-import { getName, prefixStyle } from '../../../api/utils';
-import { changeShowPlayList, changeCurrentIndex, deleteSong } from '../store/actionCreator';
+import { findIndex, getName, prefixStyle, shuffle } from '../../../api/utils';
+import {
+	changeShowPlayList,
+	changeCurrentIndex,
+	deleteSong,
+	changePlayList,
+	changeSequecePlayList,
+	changeCurrentSong,
+	changePlayingState,
+  changePlayMode
+} from '../store/actionCreator';
 import { PlayListWrapper, ScrollWrapper, ListHeader, ListContent } from './style';
 import Scroll from '../../../baseUI/scroll';
+import Confirm from '../../../baseUI/confirm';
 import { playMode } from '../../../api/config';
 
 function PlayList(props) {
@@ -13,16 +23,19 @@ function PlayList(props) {
 		playList: immutablePlayList,
 		currentSong: immutableCurrentSong,
 		mode,
-		currentIndex
+		currentIndex,
+    sequencePlayList: immutableSequencePlayList
 	} = props;
-	const { togglePlayListDispatch, changeCurrentIndex, deleteSongDispatch } = props;
+	const { togglePlayListDispatch, changeCurrentIndex, deleteSongDispatch, clearDispatch, changePlayListDispatch, changeModeDispatch } = props;
 
 	const playList = immutablePlayList.toJS();
+  const sequencePlayList = immutableSequencePlayList.toJS();
 	const currentSong = immutableCurrentSong.toJS();
 
 	const [isShow, setIsShow] = useState();
 	const playListWrapperRef = useRef();
 	const listWrapperRef = useRef();
+	const confirmRef = useRef();
 
 	const transform = prefixStyle('transform');
 
@@ -75,9 +88,28 @@ function PlayList(props) {
 
 	const changeMode = () => {
 		let newMode = (mode + 1) % 3;
+		if (newMode === 0) {
+			// 顺序模式
+			changePlayListDispatch(sequencePlayList);
+			let index = findIndex(currentSong, sequencePlayList);
+			changeCurrentIndex(index);
+		} else if (newMode === 1) {
+			// 单曲循环
+			changePlayListDispatch(sequencePlayList);
+		} else if (newMode === 2) {
+			// 随机播放
+			let newList = shuffle(sequencePlayList);
+			let index = findIndex(currentSong, newList);
+			changePlayListDispatch(newList);
+			changeCurrentIndex(index);
+		}
+		changeModeDispatch(newMode);
 	};
 
-	const handleShowClear = () => {};
+	const handleShowClear = (e) => {
+		e.stopPropagation();
+		confirmRef.current.show();
+	};
 
 	const getCurrentIcon = (item) => {
 		const isCurr = currentSong.id === item.id;
@@ -100,9 +132,13 @@ function PlayList(props) {
 	};
 
 	const handleDeleteSong = (e, song) => {
-    e.stopPropagation();
-    deleteSongDispatch(song);
-  };
+		e.stopPropagation();
+		deleteSongDispatch(song);
+	};
+
+	const handleConfirm = () => {
+		clearDispatch();
+	};
 
 	return (
 		<CSSTransition
@@ -123,7 +159,7 @@ function PlayList(props) {
 					<ListHeader>
 						<h1 className="title">
 							{getPlayMode()}
-							<span className="iconfont clear" onClick={handleShowClear}>
+							<span className="iconfont clear" onClick={(e) => handleShowClear(e)}>
 								&#xe63d;
 							</span>
 						</h1>
@@ -158,6 +194,7 @@ function PlayList(props) {
 						</Scroll>
 					</ScrollWrapper>
 				</div>
+				<Confirm ref={confirmRef} handleConfirm={handleConfirm}></Confirm>
 			</PlayListWrapper>
 		</CSSTransition>
 	);
@@ -166,6 +203,7 @@ function PlayList(props) {
 const mapStateToProps = (state) => ({
 	showPlayList: state.getIn(['player', 'showPlayList']),
 	playList: state.getIn(['player', 'playList']),
+  sequencePlayList: state.getIn(['player', 'sequencePlayList']),
 	currentSong: state.getIn(['player', 'currentSong']),
 	mode: state.getIn(['player', 'mode']),
 	currentIndex: state.getIn(['player', 'currentIndex'])
@@ -173,6 +211,9 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => {
 	return {
+    changePlayListDispatch(data) {
+      dispatch(changePlayList(data));
+    },
 		togglePlayListDispatch(data) {
 			dispatch(changeShowPlayList(data));
 		},
@@ -181,6 +222,18 @@ const mapDispatchToProps = (dispatch) => {
 		},
 		deleteSongDispatch(data) {
 			dispatch(deleteSong(data));
+		},
+    //修改当前的播放模式
+    changeModeDispatch(data) {
+      dispatch(changePlayMode(data));
+    },
+		clearDispatch() {
+			dispatch(changePlayList([]));
+			dispatch(changeSequecePlayList([]));
+			dispatch(changeCurrentIndex(-1));
+			dispatch(changeShowPlayList(false));
+			dispatch(changeCurrentSong({}));
+			dispatch(changePlayingState(false));
 		}
 	};
 };

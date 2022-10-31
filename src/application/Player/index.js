@@ -15,6 +15,8 @@ import {
 import { findIndex, getSongUrl, isEmptyObject, shuffle } from '../../api/utils';
 import Toast from '../../baseUI/Toast';
 import PlayList from './playList';
+import { getLyricRequest } from '../../api/request';
+import Lyric from '../../api/lyric-parser';
 
 const Player = (props) => {
 	let {
@@ -34,7 +36,7 @@ const Player = (props) => {
 	const {
 		toggleFullScreenDispatch,
 		togglePlayingDispatch,
-    togglePlayListDispatch,
+		togglePlayListDispatch,
 		changeCurrentIndexDispatch,
 		changeCurrentDispatch,
 		changePlayListDispatch,
@@ -45,6 +47,7 @@ const Player = (props) => {
 
 	const audioRef = useRef();
 	const toastRef = useRef();
+	const currentLyric = useRef();
 
 	// 目前播放时间
 	const [currentTime, setCurrentTime] = useState(0);
@@ -94,6 +97,25 @@ const Player = (props) => {
 		toastRef.current.show();
 	};
 
+	const getLyric = async (id) => {
+    try {
+      let lyric = '';
+      const data = await getLyricRequest(id);
+      console.log(data);
+      lyric = data.lrc.lyric;
+      new Lyric(lyric);
+      if (!lyric) {
+        currentLyric.current = null;
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+      audioRef.current.play().then(() => {
+        togglePlayingDispatch(true);
+      });
+    }
+  };
+
 	// 切歌
 	useEffect(() => {
 		if (
@@ -109,13 +131,17 @@ const Player = (props) => {
 		setPreSong(current);
 		audioRef.current.src = getSongUrl(current.id);
 		setTimeout(() => {
-			audioRef.current.play().then(() => {
-        togglePlayingDispatch(true);
-        setCurrentTime(0);
-        setDuration((current.dt / 1000) | 0);
-      }).catch(e => {
-        alert('歌曲不存在');
-      });
+			audioRef.current
+				.play()
+				.then(() => {
+					togglePlayingDispatch(true);
+					getLyric(current.id);
+					setCurrentTime(0);
+					setDuration((current.dt / 1000) | 0);
+				})
+				.catch((e) => {
+					alert('歌曲不存在');
+				});
 		});
 	}, [playList, currentIndex]);
 
@@ -173,7 +199,7 @@ const Player = (props) => {
 					playing={playing}
 					toggleFullScreen={toggleFullScreenDispatch}
 					clickPlaying={clickPlaying}
-          togglePlayList={togglePlayListDispatch}
+					togglePlayList={togglePlayListDispatch}
 				></MiniPlayer>
 			) : null}
 			{!isEmptyObject(currentSong) ? (
@@ -193,12 +219,9 @@ const Player = (props) => {
 					onProgressChange={onProgressChange}
 				></NormalPlayer>
 			) : null}
-			<audio
-				ref={audioRef}
-				onTimeUpdate={updateTime}
-			></audio>
+			<audio ref={audioRef} onTimeUpdate={updateTime}></audio>
 			<Toast ref={toastRef} text={modeText}></Toast>
-      <PlayList></PlayList>
+			<PlayList></PlayList>
 		</div>
 	);
 };
