@@ -97,7 +97,7 @@ export default class Lyric {
 		this.timer = setTimeout(() => {
 			this._callHandler(this.curLineIndex++);
 			if (this.curLineIndex < this.lines.length && this.state === STATE_PLAYING) {
-				this._playRest();
+				this._playReset();
 			}
 		}, delay);
 	}

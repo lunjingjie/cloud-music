@@ -44,10 +44,12 @@ const Player = (props) => {
 	} = props;
 
 	const [modeText, setModeText] = useState();
+  const [currentPlayingLyric, setPlayingLyric] = useState('');
 
 	const audioRef = useRef();
 	const toastRef = useRef();
 	const currentLyric = useRef();
+  const currentLineNum = useRef(0);
 
 	// 目前播放时间
 	const [currentTime, setCurrentTime] = useState(0);
@@ -62,15 +64,18 @@ const Player = (props) => {
 		// 阻止事件传播，因为还有setFullScreen的事件
 		e.stopPropagation();
 		togglePlayingDispatch(state);
+    if (currentLyric.current) {
+      currentLyric.current.togglePlay(currentTime * 1000);
+    }
 	};
 
 	const onProgressChange = (curPercent) => {
 		const newTime = curPercent * duration;
 		setCurrentTime(newTime);
 		audioRef.current.currentTime = newTime;
-		// if (!playing) {
-		//   togglePlayingDispatch(true);
-		// }
+		if (currentLyric.current) {
+      currentLyric.current.seek(newTime * 1000);
+    }
 	};
 
 	const changeMode = () => {
@@ -100,14 +105,19 @@ const Player = (props) => {
 	const getLyric = async (id) => {
     try {
       let lyric = '';
+      if (currentLyric.current) {
+        currentLyric.current.stop();
+      }
       const data = await getLyricRequest(id);
-      console.log(data);
       lyric = data.lrc.lyric;
-      new Lyric(lyric);
       if (!lyric) {
         currentLyric.current = null;
         return;
       }
+      currentLyric.current = new Lyric(lyric, handleLyric);
+      currentLyric.current.play();
+      currentLineNum.current = 0;
+      currentLyric.current.seek(0);
     } catch (err) {
       console.error(err);
       audioRef.current.play().then(() => {
@@ -115,6 +125,15 @@ const Player = (props) => {
       });
     }
   };
+
+  // 操作歌词
+  const handleLyric = ({lineNum, txt}) => {
+    if (!currentLyric.current) {
+      return;
+    }
+    currentLineNum.current = lineNum;
+    setPlayingLyric(txt);
+  }
 
 	// 切歌
 	useEffect(() => {
@@ -216,6 +235,9 @@ const Player = (props) => {
 					handlePrev={handlePrev}
 					handleNext={handleNext}
 					clickPlaying={clickPlaying}
+          currentLyric={currentLyric.current}
+          currentPlayingLyric={currentPlayingLyric}
+          currentLineNum={currentLineNum.current}
 					onProgressChange={onProgressChange}
 				></NormalPlayer>
 			) : null}
